@@ -2,7 +2,7 @@ import turtle
 
 from Player import Player
 import Robot
-import time
+
 
 class Game:
     robotPlayer = Player.X
@@ -11,6 +11,7 @@ class Game:
     isGameOver = False
     isRobotFirst = True
     loops = 0
+    winner = None
 
     def __init__(self, player: Player, board: Robot.Board, robot: Robot):
         self.player = player
@@ -26,7 +27,8 @@ class Game:
             else:
                 self.drawHumanPlayer()
 
-            self.checkForWinner()
+            if self.checkForWinner():
+                break
 
             if self.loops >= 9:
                 self.gameOver()
@@ -38,7 +40,7 @@ class Game:
             self.playerTurn = Player.X
 
     def drawRobotPlayer(self) -> bool:
-        randomPlace = self.robot.pickRandomPlace(self.board)
+        randomPlace = self.robot.pickRandomPlace(self.board, player=self.playerTurn)
         if randomPlace is None:
             print("No Places Left")
             return False
@@ -49,7 +51,7 @@ class Game:
         return True
 
     def drawHumanPlayer(self) -> bool:
-        randomPlace = self.robot.pickRandomPlace(self.board)
+        randomPlace = self.robot.pickRandomPlace(self.board, player=self.playerTurn)
         if randomPlace is None:
             print("No Places Left")
             return False
@@ -59,8 +61,23 @@ class Game:
         self.changeTurn()
         return True
 
-    def checkForWinner(self) -> bool:
+    def drawWinnerPath(self):
+        print("Drawing winner path")
+        pass
 
+    def checkForWinner(self) -> bool:
+        xCells = list(filter(lambda x: x['player'] == Player.X, self.board.centerPoints))
+        oCells = list(filter(lambda x: x['player'] == Player.O, self.board.centerPoints))
+
+        if len(xCells) < 3:
+            return False
+
+        if len(oCells) < 3:
+            return False
+
+        # TODO
+
+        self.drawWinnerPath()
         return False
 
     def gameOver(self):

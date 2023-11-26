@@ -19,8 +19,9 @@ player = Player.Player()
 # Draw Board
 board.drawBoard(robot=robot)
 
-
 game = Game.Game(robot=robot, player=player, board=board)
 game.startGame()
+
+
 
 turtle.Screen().exitonclick()

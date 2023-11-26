@@ -20,7 +20,7 @@ class Board:
         cellSize = self.cellSize
         currentX = -cellSize / 2
         currentY = -cellSize / 2
-        centerPoints: [dict[str, int | bool]] = []
+        centerPoints: [dict[str, int | bool | Robot.Player]] = []
 
         for i in range(gridWidth):
             currentY += cellSize
@@ -29,10 +29,21 @@ class Board:
                 centerPoints.append({
                     'x': currentX,
                     'y': -currentY,
-                    'isEmpty': True
+                    'isEmpty': True,
+                    'player': None
                 })
             currentX = -cellSize / 2
         return centerPoints
+
+    def convertCoordinatesToCell(self, pos: dict[str, int]):
+        x, y = pos['x'], pos['y']
+        cell_x = x // self.cellSize
+        cell_y = y // self.cellSize
+
+        cell_index = cell_y * self.cellSize + cell_x
+
+        print(cell_index)
+        return
 
     def drawBoard(self, robot: Robot):
         for i in range(self.gridWidth - 1):

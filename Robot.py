@@ -19,6 +19,7 @@ class Robot:
     }
     orientation: Orientation = Orientation.DOWN
     centerPoints: [dict[str, int | bool]] = []
+
     @property
     def x(self):
         return self.pos['x']
@@ -26,7 +27,6 @@ class Robot:
     @property
     def y(self):
         return self.pos['y']
-
 
     def moveRobot(self, amount: int, orientation: Orientation):
         print(f"Moving robot {amount} on {orientation}:")
@@ -67,7 +67,7 @@ class Robot:
 
         self.updateRobotCoordinates(nextX, nextY)
 
-    def pickRandomPlace(self, board: Board):
+    def pickRandomPlace(self, board: Board, player: Player):
         emptyCenterPoints = list(filter(lambda x: x['isEmpty'], board.centerPoints))
 
         if len(emptyCenterPoints) == 0:
@@ -78,6 +78,7 @@ class Robot:
         randomCell = random.choice(emptyCenterPoints)
         randomCellIndex = board.centerPoints.index(randomCell)
         board.centerPoints[randomCellIndex]['isEmpty'] = False
+        board.centerPoints[randomCellIndex]['player'] = player
 
         print(randomCell)
         return randomCell
@@ -102,7 +103,6 @@ class Robot:
     def raisePen(self):
         print("Pen is Down")
         turtle.penup()
-
 
     def drawMinus(self):
         self.raisePen()
