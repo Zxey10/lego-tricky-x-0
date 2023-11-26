@@ -3,7 +3,11 @@ import turtle
 
 
 class Board:
-    board = []
+    boardMatrix = [
+        ["", "", ""],
+        ["", "", ""],
+        ["", "", ""]
+    ]
     centerPoints: [dict[str, int | bool]] = []
 
     def __init__(self, _cellSize: int, _gridSize: int, _gridWidth: int):
@@ -35,15 +39,6 @@ class Board:
             currentX = -cellSize / 2
         return centerPoints
 
-    def convertCoordinatesToCell(self, pos: dict[str, int]):
-        x, y = pos['x'], pos['y']
-        cell_x = x // self.cellSize
-        cell_y = y // self.cellSize
-
-        cell_index = cell_y * self.cellSize + cell_x
-
-        print(cell_index)
-        return
 
     def drawBoard(self, robot: Robot):
         for i in range(self.gridWidth - 1):

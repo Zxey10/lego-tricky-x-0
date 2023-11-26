@@ -1,9 +1,10 @@
 import random
+
+import Utlis
 from Player import Player
 from Board import Board
 from enum import Enum
 import turtle
-
 
 class Orientation(Enum):
     UP = "UP",
@@ -19,6 +20,7 @@ class Robot:
     }
     orientation: Orientation = Orientation.DOWN
     centerPoints: [dict[str, int | bool]] = []
+    multiplier = 10
 
     @property
     def x(self):
@@ -80,6 +82,17 @@ class Robot:
         board.centerPoints[randomCellIndex]['isEmpty'] = False
         board.centerPoints[randomCellIndex]['player'] = player
 
+        print("Random cell")
+        print(randomCell)
+
+        for col in range(board.gridWidth):
+            for row in range(board.gridWidth):
+                target_x = (2 + col * 4) * self.multiplier
+                target_y = (-2 - row * 4) * self.multiplier
+
+                if randomCell['x'] == target_x and randomCell['y'] == target_y:
+                    board.boardMatrix[row][col] = player
+
         print(randomCell)
         return randomCell
 
@@ -120,3 +133,4 @@ class Robot:
         self.moveRobot(Player.playerSize, Orientation.DOWN)
         self.raisePen()
         self.moveRobot(Player.playerOffset, Orientation.UP)
+

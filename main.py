@@ -22,6 +22,6 @@ board.drawBoard(robot=robot)
 game = Game.Game(robot=robot, player=player, board=board)
 game.startGame()
 
-
+print(board.boardMatrix)
 
 turtle.Screen().exitonclick()
