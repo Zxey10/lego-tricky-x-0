@@ -1,5 +1,4 @@
 import Robot
-import turtle
 
 
 class Board:

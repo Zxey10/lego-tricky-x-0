@@ -1,4 +1,3 @@
-import time
 import turtle
 
 from Player import Player
@@ -12,7 +11,6 @@ class Game:
     isGameOver = False
     isRobotFirst = True
     loops = 0
-    winner = None
     multiplier = 10
 
     def __init__(self, player: Player, board: Robot.Board, robot: Robot):

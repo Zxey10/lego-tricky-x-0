@@ -1,6 +1,5 @@
 import random
 
-import Utlis
 from Player import Player
 from Board import Board
 from enum import Enum
