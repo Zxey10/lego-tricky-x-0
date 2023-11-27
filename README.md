@@ -4,4 +4,5 @@ The project is a graphic simulation written in python with turtle, It plays X & 
 This code needs adaptation to run on the real robot.
 
 ![Game](https://i.imgur.com/mLCTd8o.png)
-![Game](https://i.imgur.com/80R4RDB.png)
+![Game](https://i.imgur.com/hYneylC.png)
+![Game](https://i.imgur.com/49nppzY.png)
