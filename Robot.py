@@ -11,7 +11,8 @@ class Orientation(Enum):
     DOWN = "DOWN",
     LEFT = "LEFT",
     RIGHT = "RIGHT"
-
+    DIAG_F = "DIAG_F",
+    DIAG_S = "DIAG_S"
 
 class Robot:
     pos = {
@@ -41,7 +42,14 @@ class Robot:
                 self.pos['x'] += amount
             case orientation.LEFT:
                 self.pos['x'] += -amount
+            case orientation.DIAG_F:
+                self.pos['x'] += amount
+                self.pos['y'] -= amount
+            case orientation.DIAG_S:
+                self.pos['x'] -= amount
+                self.pos['y'] -= amount
         turtle.goto(self.x, self.y)
+
 
     def getTo(self, currPos: dict[str, int], nextPos: dict[str, int]):
         currX, currY = currPos['x'], currPos['y']

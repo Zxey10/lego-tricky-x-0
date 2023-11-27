@@ -1,3 +1,4 @@
+import time
 import turtle
 
 from Player import Player
@@ -64,77 +65,138 @@ class Game:
         self.changeTurn()
         return True
 
+    def changePenColor(self):
+        turtle.colormode(255)
+        turtle.pencolor(50, 168, 82)
+    def drawWinnerDiagonallyPaths(self, x: int, y: int, orientation: Robot.Orientation):
+        self.changePenColor()
+        self.robot.getTo(self.robot.pos, {'x': x, 'y': y})
+        self.robot.lowerPen()
+        self.robot.moveRobot(amount=self.board.gridSize,orientation=orientation)
+        self.robot.raisePen()
+
     def drawWinnerPath(self, xEnd: int, yEnd: int, x: int, y: int):
+        self.changePenColor()
         self.robot.getTo(self.robot.pos, {'x': x, 'y': y})
         self.robot.lowerPen()
         self.robot.getTo(self.robot.pos, {'x': xEnd, 'y': yEnd})
         self.robot.raisePen()
 
+    def drawRowsWinnerPaths(self, row: int):
+        #1 Row
+        if row == 1:
+            self.drawWinnerPath(xEnd=self.board.gridSize, yEnd=-self.board.cellSize // 2, x=0,
+                                y=-self.board.cellSize // 2)
+        #2 Row
+        if row == 2:
+            self.drawWinnerPath(xEnd=self.board.gridSize, yEnd=-self.board.cellSize // 2, x=0,
+                                y=-(self.board.cellSize + self.board.cellSize // 2))
+        #3 Row
+        if row == 3:
+            self.drawWinnerPath(xEnd=self.board.gridSize, yEnd=-self.board.cellSize * 2 - self.board.cellSize//2, x=0,
+                            y=-self.board.cellSize * 2 - self.board.cellSize//2)
+
+    def drawColsWinnerPaths(self, col: int):
+        #1 Col
+        if col == 1:
+            self.drawWinnerPath(xEnd=self.board.cellSize // 2, yEnd=-self.board.gridSize, x=self.board.cellSize // 2,
+                            y=0)
+        #2 Col
+        if col == 2:
+            self.drawWinnerPath(xEnd=self.board.cellSize + self.board.cellSize // 2, yEnd=-self.board.gridSize,
+                            x=self.board.cellSize + self.board.cellSize // 2,
+                            y=0)
+        #3 Col
+        if col == 3:
+            self.drawWinnerPath(xEnd=self.board.cellSize * 2 + self.board.cellSize//2, yEnd=-self.board.gridSize, x=self.board.cellSize * 2 + self.board.cellSize//2,
+                            y=0)
+
+    def drawDiagonalsWinnerPaths(self, diag: int):
+        #First Diagonal
+        if diag == 1:
+            self.drawWinnerDiagonallyPaths(x=0, y=0, orientation=Robot.Orientation.DIAG_F)
+        #Second Diagonal
+        if diag == 2:
+            self.drawWinnerDiagonallyPaths(x=self.board.gridSize, y=0, orientation=Robot.Orientation.DIAG_S)
     def checkForWinner(self) -> [str, bool]:
         board = self.board.boardMatrix
 
         # Rows
+        # Player X
         if board[0][0] == Player.X and board[0][0] == board[0][1] and board[0][1] == board[0][2]:
-            self.drawWinnerPath(xEnd=self.board.gridSize, yEnd=-self.board.cellSize // 2, x=0,
-                                y=-self.board.cellSize // 2)
+            self.drawRowsWinnerPaths(1)
             return [f"{Player.X} wins", True]
 
         if board[1][0] == Player.X and board[1][0] == board[1][1] and board[1][1] == board[1][2]:
-            self.drawWinnerPath(xEnd=self.board.gridSize, yEnd=-self.board.cellSize // 2, x=0,
-                                y=-(self.board.cellSize + self.board.cellSize // 2))
+            self.drawRowsWinnerPaths(2)
             return [f"{Player.X} wins", True]
 
         if board[2][0] == Player.X and board[2][0] == board[2][1] and board[2][1] == board[2][2]:
-            self.drawWinnerPath(xEnd=self.board.gridSize, yEnd=-self.board.cellSize // 2, x=0,
-                                y=-self.board.cellSize * 2)
+            self.drawRowsWinnerPaths(3)
             return [f"{Player.X} wins", True]
 
+        # Player O
         if board[0][0] == Player.O and board[0][0] == board[0][1] and board[0][1] == board[0][2]:
-            self.drawWinnerPath(xEnd=self.board.gridSize, yEnd=-self.board.cellSize // 2, x=0,
-                                y=-self.board.cellSize // 2)
+            self.drawRowsWinnerPaths(1)
             return [f"{Player.O} wins", True]
 
         if board[1][0] == Player.O and board[1][0] == board[1][1] and board[1][1] == board[1][2]:
-            self.drawWinnerPath(xEnd=self.board.gridSize, yEnd=-self.board.cellSize // 2, x=0,
-                                y=-(self.board.cellSize + self.board.cellSize // 2))
+            self.drawRowsWinnerPaths(2)
             return [f"{Player.O} wins", True]
 
         if board[2][0] == Player.O and board[2][0] == board[2][1] and board[2][1] == board[2][2]:
-            self.drawWinnerPath(xEnd=self.board.gridSize, yEnd=-self.board.cellSize // 2, x=0,
-                                y=-self.board.cellSize * 2)
+            self.drawRowsWinnerPaths(3)
             return [f"{Player.O} wins", True]
 
         # Columns
+        # Player X
         if board[0][0] == Player.X and board[0][0] == board[1][0] and board[1][0] == board[2][0]:
-            self.drawWinnerPath(xEnd=self.board.cellSize // 2, yEnd=-self.board.gridSize, x=self.board.cellSize // 2,
-                                y=0)
+            self.drawColsWinnerPaths(1)
             return [f"{Player.X} wins", True]
 
         if board[0][1] == Player.X and board[0][1] == board[1][1] and board[1][1] == board[2][1]:
-            self.drawWinnerPath(xEnd=self.board.cellSize // 2, yEnd=-self.board.gridSize,
-                                x=self.board.cellSize + self.board.cellSize // 2,
-                                y=0)
+            self.drawColsWinnerPaths(2)
             return [f"{Player.X} wins", True]
 
         if board[0][2] == Player.X and board[0][2] == board[1][2] and board[1][2] == board[2][2]:
-            self.drawWinnerPath(xEnd=self.board.cellSize // 2, yEnd=-self.board.gridSize, x=self.board.cellSize * 2,
-                                y=0)
+            self.drawColsWinnerPaths(3)
             return [f"{Player.X} wins", True]
 
+        # Player O
         if board[0][0] == Player.O and board[0][0] == board[1][0] and board[1][0] == board[2][0]:
-            self.drawWinnerPath(xEnd=self.board.cellSize // 2, yEnd=-self.board.gridSize, x=self.board.cellSize // 2,
-                                y=0)
+            self.drawColsWinnerPaths(1)
             return [f"{Player.O} wins", True]
 
         if board[0][1] == Player.O and board[0][1] == board[1][1] and board[1][1] == board[2][1]:
-            self.drawWinnerPath(xEnd=self.board.cellSize // 2, yEnd=-self.board.gridSize,
-                                x=self.board.cellSize + self.board.cellSize // 2,
-                                y=0)
+            self.drawColsWinnerPaths(2)
             return [f"{Player.O} wins", True]
 
         if board[0][2] == Player.O and board[0][2] == board[1][2] and board[1][2] == board[2][2]:
-            self.drawWinnerPath(xEnd=self.board.cellSize // 2, yEnd=-self.board.gridSize, x=self.board.cellSize * 2,
-                                y=0)
+            self.drawColsWinnerPaths(3)
+            return [f"{Player.O} wins", True]
+
+        #Diagonal_F
+
+        #Player X
+        if board[0][0] == Player.X and board[0][0] == board[1][1] and board[2][2] == board[1][1]:
+            self.drawDiagonalsWinnerPaths(1)
+            return [f"{Player.X} wins", True]
+
+        # Player O
+        if board[0][0] == Player.O and board[0][0] == board[1][1] and board[2][2] == board[1][1]:
+            self.drawDiagonalsWinnerPaths(1)
+            return [f"{Player.O} wins", True]
+
+        # Diagonal_S
+
+        # Player X
+        if board[0][2] == Player.X and board[0][2] == board[1][1] and board[1][1] == board[2][0]:
+            self.drawDiagonalsWinnerPaths(2)
+            return [f"{Player.X} wins", True]
+
+            # Player O
+        if board[0][2] == Player.O and board[0][2] == board[1][1] and board[1][1] == board[2][0]:
+            self.drawDiagonalsWinnerPaths(2)
             return [f"{Player.O} wins", True]
 
         emptyCenterPoints = list(filter(lambda x: x['isEmpty'], self.board.centerPoints))
