@@ -5,13 +5,15 @@ from Board import Board
 from enum import Enum
 import turtle
 
+
 class Orientation(Enum):
-    UP = "UP",
-    DOWN = "DOWN",
-    LEFT = "LEFT",
+    UP = "UP"
+    DOWN = "DOWN"
+    LEFT = "LEFT"
     RIGHT = "RIGHT"
-    DIAG_F = "DIAG_F",
+    DIAG_F = "DIAG_F"
     DIAG_S = "DIAG_S"
+
 
 class Robot:
     pos = {
@@ -33,22 +35,21 @@ class Robot:
     def moveRobot(self, amount: int, orientation: Orientation):
         print(f"Moving robot {amount} on {orientation}:")
         match orientation:
-            case orientation.DOWN:
+            case Orientation.DOWN:
                 self.pos['y'] += (amount * -1)
-            case orientation.UP:
+            case Orientation.UP:
                 self.pos['y'] += (-amount * -1)
-            case orientation.RIGHT:
+            case Orientation.RIGHT:
                 self.pos['x'] += amount
-            case orientation.LEFT:
+            case Orientation.LEFT:
                 self.pos['x'] += -amount
-            case orientation.DIAG_F:
+            case Orientation.DIAG_S:
                 self.pos['x'] += amount
                 self.pos['y'] -= amount
-            case orientation.DIAG_S:
+            case Orientation.DIAG_F:
                 self.pos['x'] -= amount
                 self.pos['y'] -= amount
         turtle.goto(self.x, self.y)
-
 
     def getTo(self, currPos: dict[str, int], nextPos: dict[str, int]):
         currX, currY = currPos['x'], currPos['y']
@@ -140,4 +141,3 @@ class Robot:
         self.moveRobot(Player.playerSize, Orientation.DOWN)
         self.raisePen()
         self.moveRobot(Player.playerOffset, Orientation.UP)
-

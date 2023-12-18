@@ -1,6 +1,14 @@
 import Robot
 
 
+# https://lego.github.io/MINDSTORMS-Robot-Inventor-hub-API/class_motorpair.html
+# https://primelessons.org/en/PyLessons.html
+# https://www.antonsmindstorms.com/2021/01/14/advanced-undocumented-python-in-spike-prime-and-mindstorms-hubs/
+# https://pybricks.com/projects/sets/mindstorms-robot-inventor/main-models/tricky/
+# https://github.com/azzieg/mindstorms-inventor/tree/main/word_blocks
+# https://github.com/arturomoncadatorres/lego-mindstorms/tree/main/examples/programs
+# https://github.com/LukaAndrojna/LEGO_Mindstorms_51515/blob/main/Tricky/first_project/drive2.py
+
 class Board:
     boardMatrix = [
         ["", "", ""],
@@ -37,7 +45,6 @@ class Board:
                 })
             currentX = -cellSize / 2
         return centerPoints
-
 
     def drawBoard(self, robot: Robot):
         for i in range(self.gridWidth - 1):

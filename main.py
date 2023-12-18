@@ -4,7 +4,7 @@ import Board
 import turtle
 import Game
 
-turtle.speed(3)
+turtle.speed(1)
 multiplier = 10
 
 # Board
