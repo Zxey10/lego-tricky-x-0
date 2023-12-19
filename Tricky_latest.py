@@ -16,16 +16,13 @@ robotError = 9.25
 motor_pair = MotorPair('B', 'A')
 pen_motor = Motor('C')
 
-playerX = '+'
-player0 = '-'
+hub = MSHub()
 
 color_sensor = ColorSensor('E')
 motor_pair.set_default_speed(pairMotorSpeed)
 pen_motor.run_to_position(165, 'shortest path')
 
 offset = 1
-
-playerTurn = '+'
 
 boardMatrix = [
     ["", "", ""],
@@ -40,16 +37,20 @@ class Player:
 
 
 movements_map = {
-    'RR': {'distance': 10, 'rotation': 100, 'upDir': 14, 'isEmpty': True, 'player': None},
-    'GR': {'distance': 10, 'rotation': 100, 'upDir': 10, 'isEmpty': True, 'player': None},
-    'BR': {'distance': 10, 'rotation': 100, 'upDir': 6, 'isEmpty': True, 'player': None},
-    'BG': {'distance': 6, 'rotation': 100, 'upDir': 6, 'isEmpty': True, 'player': None},
-    'BB': {'distance': 2, 'rotation': 100, 'upDir': 6, 'isEmpty': True, 'player': None},
-    'RG': {'distance': 6, 'rotation': 100, 'upDir': 14, 'isEmpty': True, 'player': None},
-    'GG': {'distance': 6, 'rotation': 100, 'upDir': 10, 'isEmpty': True, 'player': None},
-    'GB': {'distance': 2, 'rotation': 100, 'upDir': 10, 'isEmpty': True, 'player': None},
-    'RB': {'distance': 2, 'rotation': 100, 'upDir': 14, 'isEmpty': True, 'player': None}
+    'RR': {'distance': 10, 'rotation': 100, 'upDir': 14, 'isEmpty': True, 'player': None, 'row': 0, 'col': 0},
+    'GR': {'distance': 10, 'rotation': 100, 'upDir': 10, 'isEmpty': True, 'player': None, 'row': 1, 'col': 0},
+    'BR': {'distance': 10, 'rotation': 100, 'upDir': 6, 'isEmpty': True, 'player': None, 'row': 2, 'col': 0},
+    'BG': {'distance': 6, 'rotation': 100, 'upDir': 6, 'isEmpty': True, 'player': None, 'row': 2, 'col': 1},
+    'RG': {'distance': 6, 'rotation': 100, 'upDir': 14, 'isEmpty': True, 'player': None, 'row': 0, 'col': 1},
+    'GG': {'distance': 6, 'rotation': 100, 'upDir': 10, 'isEmpty': True, 'player': None, 'row': 1, 'col': 1},
+    'GB': {'distance': 2, 'rotation': 100, 'upDir': 10, 'isEmpty': True, 'player': None, 'row': 1, 'col': 2},
+    'RB': {'distance': 2, 'rotation': 100, 'upDir': 14, 'isEmpty': True, 'player': None, 'row': 0, 'col': 2},
+    'BB': {'distance': 2, 'rotation': 100, 'upDir': 6, 'isEmpty': True, 'player': None, 'row': 2, 'col': 2}
 }
+
+
+class RotationTurn:
+    rotatePlayerTurn = Player.X
 
 
 def chooseRandomMovementKey(movementsKeys):
@@ -64,6 +65,10 @@ def getMovementFilteredKeys():
     return filtered_keys
 
 
+def printToHub(message: str):
+    hub.light_matrix.write(message)
+
+
 class Game:
     robotPlayer = Player.X
     humanPlayer = Player.O
@@ -73,14 +78,19 @@ class Game:
     loops = 0
 
     def startGame(self):
+        hub.speaker.play_sound('Play')
         while not self.isGameOver:
 
             self.loops += 1
+
+            print("Player Turn", self.playerTurn)
 
             if self.playerTurn == Player.X:
                 self.drawRobotPlayer()
             else:
                 self.drawHumanPlayer()
+
+            print(boardMatrix)
 
             if self.loops >= 9:
                 self.gameOver()
@@ -90,6 +100,7 @@ class Game:
             self.playerTurn = Player.O
         else:
             self.playerTurn = Player.X
+        printToHub(self.playerTurn)
 
     def drawRobotPlayer(self) -> bool:
         filtered_keys = getMovementFilteredKeys()
@@ -98,20 +109,25 @@ class Game:
             print("No Places Left")
             return False
 
+        print("Robot Drawing X at", randomPlace)
         moveAndRotate(movements_map[randomPlace]['distance'], movements_map[randomPlace]['rotation'],
-                      movements_map[randomPlace]['upDir'])
+                      movements_map[randomPlace]['upDir'], movements_map[randomPlace]['row'],
+                      movements_map[randomPlace]['col'])
         movements_map[randomPlace]['isEmpty'] = False
         movements_map[randomPlace]['player'] = Player.X
-        print("Robot Drawing X at", randomPlace)
+
+        self.changeTurn()
 
         [winnerText, status] = self.checkForWinner()
         if status:
             print(winnerText)
-            # TODO SHOW HAPPY FACE IF ROBOT WON ELSE ANGRY FACE
+            printToHub(winnerText)
+            hub.speaker.play_sound('Celebrate')
+            wait_for_seconds(3)
+            hub.light_matrix.show_image('HAPPY')
             self.gameOver()
             return
 
-        self.changeTurn()
         return True
 
     def drawHumanPlayer(self) -> bool:
@@ -121,45 +137,49 @@ class Game:
             print("No Places Left")
             return False
 
+        print("Human Drawing O at", humanPosition)
         moveAndRotate(movements_map[humanPosition]['distance'], movements_map[humanPosition]['rotation'],
-                      movements_map[humanPosition]['upDir'])
+                      movements_map[humanPosition]['upDir'], movements_map[humanPosition]['row'],
+                      movements_map[humanPosition]['col'])
         movements_map[humanPosition]['isEmpty'] = False
         movements_map[humanPosition]['player'] = Player.O
-        print("Human Drawing O at", humanPosition)
+
+        self.changeTurn()
 
         [winnerText, status] = self.checkForWinner()
         if status:
             print(winnerText)
-            # TODO SHOW HAPPY FACE IF ROBOT WON ELSE ANGRY FACE
+            printToHub(winnerText)
+            hub.speaker.play_sound('Celebrate')
+            wait_for_seconds(3)
+            hub.light_matrix.show_image('ANGRY')
             self.gameOver()
             return
 
-        self.changeTurn()
         return True
 
     def drawDiagonalsWinnerPaths(self, diag: int):
         # First Diagonal
         if diag == 1:
-            moveRobot(2 + offset)
             rotateRobot(100)
-            moveRobot(6)
-            moveRobot(-robotError)
-            # TODO rotate 45
+            moveRobot(4)
             rotateRobot45(-100)
+            moveRobot(-robotError / 2)
+            # TODO rotate 45
             lowerPen()
-            moveRobot(8)
+            moveRobot(12)
             raisePen()
 
         # Second Diagonal
         if diag == 2:
-            moveRobot(10 + offset)
+            moveRobot(12)
             rotateRobot(100)
-            moveRobot(2)
-            moveRobot(-robotError)
-            # TODO rotate 45
+            moveRobot(4)
             rotateRobot45(100)
+            moveRobot(-robotError / 2)
+            # TODO rotate 45
             lowerPen()
-            moveRobot(8)
+            moveRobot(12)
             raisePen()
 
     def drawRowsWinnerPaths(self, row: int):
@@ -265,7 +285,7 @@ class Game:
 
         if board[0][2] == Player.X and board[0][2] == board[1][2] and board[1][2] == board[2][2]:
             self.drawColsWinnerPaths(3)
-            return [f"{Player.X} wins", True]
+            return ["{Player.X} wins", True]
 
         # Player O
         if board[0][0] == Player.O and board[0][0] == board[1][0] and board[1][0] == board[2][0]:
@@ -285,24 +305,24 @@ class Game:
         # Player X
         if board[0][0] == Player.X and board[0][0] == board[1][1] and board[2][2] == board[1][1]:
             self.drawDiagonalsWinnerPaths(1)
-            return [f"{Player.X} wins", True]
+            return ["{Player.X} wins", True]
 
         # Player O
         if board[0][0] == Player.O and board[0][0] == board[1][1] and board[2][2] == board[1][1]:
             self.drawDiagonalsWinnerPaths(1)
-            return [f"{Player.O} wins", True]
+            return ["{Player.O} wins", True]
 
         # Diagonal_S
 
         # Player X
         if board[0][2] == Player.X and board[0][2] == board[1][1] and board[1][1] == board[2][0]:
             self.drawDiagonalsWinnerPaths(2)
-            return [f"{Player.X} wins", True]
+            return ["{Player.X} wins", True]
 
             # Player O
         if board[0][2] == Player.O and board[0][2] == board[1][1] and board[1][1] == board[2][0]:
             self.drawDiagonalsWinnerPaths(2)
-            return [f"{Player.O} wins", True]
+            return ["{Player.O} wins", True]
 
         filtered_keys = getMovementFilteredKeys()
         if len(filtered_keys) == 0:
@@ -410,6 +430,7 @@ def calculateDirection(dir_: int):
 
 
 def drawLine():
+    print("Drawing Line")
     moveRobot(1)
     lowerPen()
     moveRobot(-2)
@@ -418,7 +439,9 @@ def drawLine():
 
 
 def drawPoint():
+    print("Drawing Point")
     lowerPen()
+    raisePen()
 
 
 def moveAndRotate(distance, rotation, upDistance, row, col):
@@ -428,13 +451,16 @@ def moveAndRotate(distance, rotation, upDistance, row, col):
     moveRobot(upDistance)
     moveRobot(-robotError)
 
-    if Game.playerTurn == Player.X:
-        boardMatrix[row][col] = '+'
+    if RotationTurn.rotatePlayerTurn == Player.X:
         drawPoint()
+        boardMatrix[row][col] = '+'
+        RotationTurn.rotatePlayerTurn = Player.O
+        print("Player Turn in Rotate", RotationTurn.rotatePlayerTurn)
     else:
         drawLine()
         boardMatrix[row][col] = '-'
-    raisePen()
+        print("Player Turn in Rotate", RotationTurn.rotatePlayerTurn)
+        RotationTurn.rotatePlayerTurn = Player.X
 
     moveRobot(robotError)
 
@@ -483,6 +509,7 @@ def goToBB():
 
 
 def drawBoard():
+    # hub.speaker.play_sound('Activate')
     for i in range(gridWidth):
         lowerPen()
         moveRobot(gridSize)
@@ -522,32 +549,39 @@ def scanForColors():
         if color == 'green':
             print('green')
             choichesColors.append(color[0])
+            printToHub("Green")
             wait_for_seconds(3)
         elif color == 'blue':
             print('blue')
             choichesColors.append(color[0])
+            printToHub("Blue")
             wait_for_seconds(3)
         elif color == 'red':
             print('red')
             choichesColors.append(color[0])
+            printToHub("Red")
             wait_for_seconds(3)
+
+        printToHub(RotationTurn.rotatePlayerTurn)
 
         if len(choichesColors) == 2:
             print(choichesColors)
 
-            # Check To See if it is already in the matrix
             key = "".join(choichesColors).upper();
             print(key)
             filtered_keys = getMovementFilteredKeys()
 
             if key in filtered_keys:
                 return key
+
             # Postion already taken
             print("Position is not empty")
+            hub.speaker.play_sound('Oh No')
             choichesColors = []
 
 
 calibrate()
+
 drawBoard()
 
 game = Game()
